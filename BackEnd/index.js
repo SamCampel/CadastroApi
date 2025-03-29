@@ -1,23 +1,35 @@
-const express = require ('express')
+const express = require('express')
+const { PrismaClient } = require('@prisma/client')
 
+const prisma = new PrismaClient()
 const app = express();
+app.use(express.json())
 
 const users = []
 
-app.post('/users', (req,res) => {
+app.post('/users', async (req, res) => {
     try {
-        
-        console.log(req)
+        await prisma.user.create({
+            data: {
+                email: req.body.email,
+                name: req.body.name,
+                age: req.body.age
+            }
+
+        })
+
+        res.status(201).json(re.body)
     } catch (error) {
-        
+
     }
 })
 
-app.get('/users', (req,res) => {
+app.get('/users', (req, res) => {
     try {
-        
+
+        res.status(200).req.json(users)
     } catch (error) {
-        
+
     }
 })
 
