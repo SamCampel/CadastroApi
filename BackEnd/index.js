@@ -2,6 +2,16 @@ const express = require ('express')
 
 const app = express();
 
+const users = []
+
+app.post('/users', (req,res) => {
+    try {
+        
+        console.log(req)
+    } catch (error) {
+        
+    }
+})
 
 app.get('/users', (req,res) => {
     try {
@@ -10,4 +20,7 @@ app.get('/users', (req,res) => {
         
     }
 })
-app.listen(5768)
+
+app.listen(5678, () => {
+    console.log("API rodando na porta 5678!")
+})
