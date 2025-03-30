@@ -1,15 +1,12 @@
-const express = require('express');
-const { PrismaClient } = require('@prisma/client');
-const cors = require('cors');
+import express from 'express';
+import { PrismaClient } from '@prisma/client';
+import cors from 'cors';
 
 const prisma = new PrismaClient();
 const app = express();
 
 app.use(express.json());
-app.use(cors({
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-}));
+app.use(cors());
 
 app.delete('/users/:id', async (req, res) => {
   try {
@@ -55,19 +52,18 @@ app.post('/users', async (req, res) => {
 
 app.get('/users', async (req, res) => {
   try {
-    const users = Object.keys(req.query).length > 0
-      ? await prisma.user.findMany({
+    const users = Object.keys(req.query).length
+       await prisma.user.findMany({
           where: {
-            name: req.query.name ? { contains: req.query.name } : undefined,
-            email: req.query.email ? { contains: req.query.email } : undefined,
-            age: req.query.age ? parseInt(req.query.age) : undefined
+            name: req.query.name,
+            email: req.query.email,
+            age: req.query.age
           }
         })
-      : await prisma.user.findMany();
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: "Erro ao buscar usuários" });
-  }
+  } 
 });
 
 app.listen(5678, () => {
