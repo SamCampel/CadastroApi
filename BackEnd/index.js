@@ -26,7 +26,7 @@ app.put('/users/:id', async (req, res) => {
       data: {
         email: req.body.email,
         name: req.body.name,
-        age: parseInt(req.body.age)
+        age: req.body.age
       }
     });
     res.status(200).json(updatedUser);
@@ -37,6 +37,8 @@ app.put('/users/:id', async (req, res) => {
 
 app.post('/users', async (req, res) => {
   try {
+    console.log("Dados recebidos:", req.body)
+    
     const newUser = await prisma.user.create({
       data: {
         email: req.body.email,
@@ -46,24 +48,32 @@ app.post('/users', async (req, res) => {
     });
     res.status(201).json(newUser);
   } catch (error) {
-    res.status(500).json({ error: "Erro ao criar usuário" });
+    console.error("Erro detalhado:", error)
+    res.status(500).json({ 
+      error: "Erro ao criar usuário",
+      details: error.message,
+      prismaError: error.meta
+    });
   }
 });
 
 app.get('/users', async (req, res) => {
   try {
-    const users = Object.keys(req.query).length
-       await prisma.user.findMany({
-          where: {
-            name: req.query.name,
-            email: req.query.email,
-            age: req.query.age
-          }
-        })
+    const whereClause = {};
+    
+    if (req.query.name) whereClause.name = req.query.name;
+    if (req.query.email) whereClause.email = req.query.email;
+    if (req.query.age) whereClause.age = req.query.age;
+    
+    const users = await prisma.user.findMany({
+      where: whereClause
+    });
+    
     res.status(200).json(users);
   } catch (error) {
+    console.error("Erro ao buscar usuários:", error);
     res.status(500).json({ error: "Erro ao buscar usuários" });
-  } 
+  }
 });
 
 app.listen(5678, () => {

@@ -4,50 +4,60 @@ import Trash from '../assets/lixo.svg';
 import api from '../../services/api';
 
 function Home() {
-  const [users, setUsers] = useState([]) // muda o estado da variável
+  const [users, setUsers] = useState([])
 
-  // pegando o valor dos input usando 'ref'
   const inputName = useRef()
   const inputAge = useRef()
   const inputEmail = useRef()
 
-  // Função que pega usuário do banco de dados
-  async function getUsers(){
+  async function getUsers() {
+
     const usersFromApi = await api.get('/users')
 
     setUsers(usersFromApi.data)
   }
 
-  // Função que cria novo usuário
-  async function createUsers(){
+async function createUsers() {
+  if (!inputName.current.value || !inputAge.current.value || !inputEmail.current.value) {
+    alert("Preencha todos os campos!");
+    return;
+  }
 
-    await api.post('/users', {
+  try {
+    const response = await api.post('/users', {
       name: inputName.current.value,
       age: inputAge.current.value,
       email: inputEmail.current.value
-    })
-
-    getUsers()
+    });
+    
+    console.log("Usuário criado:", response.data);
+    getUsers();
+    
+    // Limpa os campos após cadastro
+    inputName.current.value = '';
+    inputAge.current.value = '';
+    inputEmail.current.value = '';
+    
+  } catch (error) {
+    console.error("Erro completo:", error);
+    console.error("Resposta do servidor:", error.response?.data);
+    alert(`Erro ao criar usuário: ${error.response?.data?.error || error.message}`);
   }
+}
 
-  // Função que deleta um usuário
-  async function deleteUsers(id){
+  async function deleteUsers(id) {
     await api.delete(`/users/${id}`)
 
     getUsers()
   }
 
-  // chama a função assim que inicia o site
   useEffect(() => {
     getUsers()
-  }, );
- 
-  // HTML
+  }, []);
+
   return (
-    // Container Principal
     <div className='container'>
 
-      {/* Formulario de cadastro */}
       <form>
         <h1>Cadastro de Usuários</h1>
         <input placeholder="nome" name='nome' type='text' ref={inputName}></input>
@@ -56,19 +66,16 @@ function Home() {
         <button type='button' onClick={createUsers}>Cadastrar</button>
       </form>
 
-      {/*Usando JavaScript para percorrer todos usuários e chamar função */}
       {users.map((user) => (
-        // Mostruário de cadastros
         <div key={user.id} className='card'>
 
-          {/* Cadastro */}
           <div>
             <p>Nome: <span>{user.name}</span></p>
             <p>Idade: <span>{user.age}</span></p>
             <p>Email: <span>{user.email}</span></p>
           </div>
           <button onClick={() => deleteUsers(user.id)}>
-            <img src={Trash} height=" 30 px"/>
+            <img src={Trash} height=" 30 px" />
           </button>
 
         </div>
